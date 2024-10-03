@@ -1,0 +1,141 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "header.h"
+
+#define MAX_CONTACTS 100
+#define MAX_CONTACT_NAME_LENGTH 50
+#define MAX_PHONE_NUMBER_LENGTH 15
+#define MAX_EMAIL_ADDRESS_LENGTH 50
+#define DATA_FILE "phone_contacts.csv"
+
+
+void listcontacts(struct contacts contact[], int count);
+void selectcontacts(struct contacts contact[],int count);
+void loadContacts(struct contacts contact[], int *count) {
+    FILE *fp = fopen(DATA_FILE, "r");
+
+    if (fp == NULL)
+    {
+        printf("Error opening file %s. Make sure that person exists and likes you.\n", DATA_FILE);
+        return;
+    }
+
+    char line[256]; // Buffer to store each line from the CSV
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+        // Parse the line and extract contact details. So it can actually display them in C.
+        sscanf(line, "%49[^,],%14[^,],%49[^\n]",
+               contact[*count].name, contact[*count].phonenumber, contact[*count].email);
+        (*count)++;
+
+        if (*count >= MAX_CONTACTS)
+        {
+            printf("Maximum number of contacts reached.\n");
+            break;
+        }
+         
+    } fclose(fp);
+}
+
+
+int main() {
+    struct contacts contact[MAX_CONTACTS];
+    int count = 0;
+    int userinput;
+    loadContacts(contact, &count);
+    
+    
+
+do {
+    printf("Smartphone Contact Hub\n");
+    printf("1. List Contacts\n");
+    printf("2. Select Contact\n");
+    printf("3. Exit\n");
+    printf("Enter your choice: ");
+    scanf("%d", &userinput);
+
+    switch (userinput) {
+        case 1: 
+            listcontacts(contact, count);
+            break;
+        case 2:
+            selectcontacts(contact, count);
+            break;
+        case 3:
+            printf("Exiting the Smartphone Contact Hub.\n");
+            printf("\n");
+            break;
+        
+        default:
+            printf("Invalid choice. Please try again.\n");
+            printf("\n");
+        }
+    } while (userinput != 3);
+        return 0;
+}
+
+void listcontacts(struct contacts contact[], int count) 
+{
+    if (count == 0) {
+        printf("No contacts found.\n");
+        printf("\n");
+        return;
+    }
+     printf("Phone Contacts:\n");
+    for (int i = 0; i < count; i++)
+    { 
+        printf("%d. Name: %s\n", i + 1, contact[i].name); 
+        printf("   Phone: %s\n", contact[i].phonenumber);
+        printf("   Email: %s\n\n", contact[i].email);
+    }
+    printf("\n");
+}
+
+
+void selectcontacts(struct contacts contact[],int count)
+{ 
+    int index;
+    if (count == 0) {
+        printf("No contact to select.\n");
+        return;
+    }
+        printf("Enter the contact index: ");
+        scanf("%d", &index);
+
+    if (index < 1 || index > count)
+    {
+        printf("Invalid contact index.\n");
+        printf("\n");
+        return;
+    }
+    index--;
+
+    printf("Selected Contact:\n");
+    printf("Name: %s\n", contact[index].name);
+    printf("Phone: %s\n", contact[index].phonenumber);
+    printf("Email: %s\n", contact[index].email);
+
+
+int secondchoice;
+    printf("What would you like to do?\n");
+    printf("1. Call\n");
+    printf("2. Send Email\n");
+    printf("Enter your choice: ");
+    scanf("%d", &secondchoice);
+
+switch (secondchoice) {
+    case 1:
+    printf("Calling %s...\n", contact[index].name);
+    printf("\n");
+    break;
+
+    case 2:
+    printf("Sending email to %s...\n", contact[index].email);
+    printf("\n");
+    break;
+
+    default:
+    printf("Invalid choice.\n");
+}
+}
